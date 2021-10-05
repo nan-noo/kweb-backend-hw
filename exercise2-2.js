@@ -6,18 +6,23 @@ const readDir = util.promisify(fs.readdir);
 const checkStat = util.promisify(fs.stat);
 
 async function checkTree(dirPath){
-    const files = await readDir(dirPath);
-    if(!files) return;
-    
-    for(let file of files){
-        const newPath = path.join(dirPath, file);
-        const extName = path.extname(file);
+    try{
+        const files = await readDir(dirPath);
+        if(!files) return;
+        
+        for(let file of files){
+            const newPath = path.join(dirPath, file);
+            const extName = path.extname(file);
 
-        if(extName === '.js'){
-            console.log(newPath);
+            if(extName === '.js'){
+                console.log(newPath);
+            }
+
+            !extName && (await checkStat(newPath)).isDirectory && await checkTree(newPath);
         }
-
-        !extName && (await checkStat(newPath)).isDirectory && await checkTree(newPath);
+    }
+    catch(e){
+        console.error(e);
     }
 }
 
